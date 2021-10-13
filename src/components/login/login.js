@@ -70,12 +70,12 @@ class Login extends Component {
     .catch(function (error) {
       console.log(error);
     });
-    if (response.data === true){
+    if (!response.ok){
 
-      this.login()
+     return false
 
     }else{
-      return false
+      this.login()
     }   
 
 
@@ -88,8 +88,6 @@ class Login extends Component {
     const isTrue = this.login()
 
     if (isTrue) {
-
-      this.login()
       this.props.history.push("/home");
     }
   };
