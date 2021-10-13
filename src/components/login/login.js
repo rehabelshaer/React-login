@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import "./style.css";
 import login from "../images/login.jpg";
+import { login_confirm } from "../../redux/actions/action"; 
+import { connect } from 'react-redux';
 // import axios from "axios";
 
 const initialState = {
@@ -9,6 +11,7 @@ const initialState = {
   password: "",
   nameError: "",
   passwordError: "",
+  token: ""
 };
 class Login extends Component {
   state = initialState;
@@ -46,7 +49,7 @@ class Login extends Component {
   };
 
 
-  login(){
+   login() {
     var axios = require('axios'); 
     var data ={
       email: 'abdelaziz@gmail.com',
@@ -54,7 +57,7 @@ class Login extends Component {
     }
     var config = {
       method: 'post',
-      url: 'http://medtroops-backend.appssquare.com/api/admin/login',
+      url: 'https://medtroops-backend.appssquare.com/api/admin/login',
       headers: { 
         'Accept': 'application/json', 
         'Content-Type': 'application/json', 
@@ -62,24 +65,30 @@ class Login extends Component {
       },
       data : data
     };
-    
+
     const response = axios(config)
     .then(function (response) {
       console.log(JSON.stringify(response.data));
+      
+      localStorage.setItem("token" , JSON.stringify(
+               {
+                 login:true,
+                 token: response.data.token
+               }
+             ))
     })
     .catch(function (error) {
       console.log(error);
     });
+
     if (!response.ok){
+      console.log("false")
+      return false
+   }else {
+    this.props.history.push("/home");
+ }
 
-     return false
-
-    }else{
-      this.login()
-    }   
-
-
-  }
+   }
   handleSubmit = (e) => {
     console.log(e);
     e.preventDefault();
@@ -87,9 +96,10 @@ class Login extends Component {
     const isVaild = this.validate();
     const isTrue = this.login()
 
-    if (isTrue) {
+    if (isVaild &&isTrue ) {
+       this.login()
       this.props.history.push("/home");
-    }
+     }
   };
 
   render() {
@@ -126,7 +136,7 @@ class Login extends Component {
               <div className="error">{this.state.passwordError}</div>
 
               <div className="button">
-                <button onClick={()=>{this.login()}} type="submit" value="submit">
+                <button onClick={ () => {this.props.login_confirm(this.data)}} type="submit" value="submit">
                   Login
                 </button>
               </div>
@@ -137,15 +147,27 @@ class Login extends Component {
     );
   }
 }
-export default Login;
+//to bring action
+function mapDispatchToProps(dispatch) {
+  return{
+    login_confirm : (data) => dispatch(login_confirm(data)),  
+  }
+}
+
+//to bring state
+ function mapStateToProps(state) {
+    return{
+     token :state 
+    }
+  }
+export default connect( mapStateToProps , mapDispatchToProps) (Login);
 // <Link to="/home">Login</Link>
   /* <Link to ="/">Login<Link>
 <Link to ="/home">Home<link></Link>  */
-// const token = localStorage.getItem("token");
 //       localStorage.setItem("token" , JSON.stringify(
 //         {
 //           login:true,
 //           token: response.data.token
 //         }
 //       ))
-
+//onClick={()=>{this.login()}}
