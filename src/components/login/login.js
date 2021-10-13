@@ -1,10 +1,11 @@
 import React, { Component } from "react";
 import "./style.css";
 import login from "../images/login.jpg";
-// import { Route, useHistory } from 'react-router';
+// import axios from "axios";
 
 const initialState = {
-  username: "",
+  // username: "",
+  email:"",
   password: "",
   nameError: "",
   passwordError: "",
@@ -15,18 +16,20 @@ class Login extends Component {
   handleChange = (e) => {
     this.setState({
       [e.target.name]: e.target.value,
+     
     });
   };
 
   validate = () => {
-    if (this.state.username && this.state.password) {
+    if (this.state.email && this.state.password) {
       return {
         ...this.state,
         nameError: "",
         passwordError: "",
       };
+      
     } else {
-      if (!this.state.username) {
+      if (!this.state.email) {
         this.setState((old) => ({
           ...old,
           nameError: "name can't be empty",
@@ -42,11 +45,51 @@ class Login extends Component {
     }
   };
 
+
+  login(){
+    var axios = require('axios'); 
+    var data ={
+      email: 'abdelaziz@gmail.com',
+      password : '123456'
+    }
+    var config = {
+      method: 'post',
+      url: 'http://medtroops-backend.appssquare.com/api/admin/login',
+      headers: { 
+        'Accept': 'application/json', 
+        'Content-Type': 'application/json', 
+        ...data
+      },
+      data : data
+    };
+    
+    const response = axios(config)
+    .then(function (response) {
+      console.log(JSON.stringify(response.data));
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+    if (response.data === true){
+
+      this.login()
+
+    }else{
+      return false
+    }   
+
+
+  }
   handleSubmit = (e) => {
     console.log(e);
     e.preventDefault();
+
     const isVaild = this.validate();
-    if (isVaild) {
+    const isTrue = this.login()
+
+    if (isTrue) {
+
+      this.login()
       this.props.history.push("/home");
     }
   };
@@ -61,13 +104,13 @@ class Login extends Component {
           <form onSubmit={this.handleSubmit}>
             <div className="form">
               <div className="form-group">
-                <label htmlFor="username">Username</label>
+                <label htmlFor="email">Email</label>
                 <input
                   type="text"
-                  name="username"
-                  placeholder="username"
+                  name="email"
+                  placeholder="Email"
                   onChange={this.handleChange}
-                  value={this.state.username}
+                  value={this.state.email}
                 />
               </div>
               <div className="error">{this.state.nameError}</div>
@@ -85,7 +128,7 @@ class Login extends Component {
               <div className="error">{this.state.passwordError}</div>
 
               <div className="button">
-                <button type="submit" value="submit">
+                <button onClick={()=>{this.login()}} type="submit" value="submit">
                   Login
                 </button>
               </div>
@@ -98,7 +141,13 @@ class Login extends Component {
 }
 export default Login;
 // <Link to="/home">Login</Link>
-{
   /* <Link to ="/">Login<Link>
 <Link to ="/home">Home<link></Link>  */
-}
+// const token = localStorage.getItem("token");
+//       localStorage.setItem("token" , JSON.stringify(
+//         {
+//           login:true,
+//           token: response.data.token
+//         }
+//       ))
+
